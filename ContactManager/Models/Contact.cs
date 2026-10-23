@@ -4,9 +4,10 @@ namespace ContactManager.Models
 {
     public class Contact
     {
-        [Required] public string Nome { get; set; }
-        [Required] public string Cognome { get; set; }
-        [Required] public string Email { get; set; }
+        public int Id { get; set; }
+        [Required] public string Nome { get; set; } = string.Empty;
+        [Required] public string Cognome { get; set; } = string.Empty;
+        [Required, EmailAddress] public string Email { get; set; } = string.Empty;
         public string? Telefono { get; set; }
         public string? Azienda { get; set; }
     }
