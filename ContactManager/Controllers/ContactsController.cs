@@ -63,23 +63,32 @@ public class ContactsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Nome,Cognome,Email,Telefono,Azienda")] Contact contact)
     {
+        var contacts = from c in _context.Contacts
+                       select c;
+        contacts = contacts.Where(c => c.Email == contact.Email);
+        if (await contacts.AnyAsync())
+        {
+            ModelState.AddModelError("Email", "Un contatto con questa email esiste già.");
+        }
+
         if (ModelState.IsValid)
         {
             _context.Add(contact);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
         return View(contact);
     }
 
     // GET: CONTACTS/Edit/5
     public async Task<IActionResult> Edit(int? id)
+
     {
         if (id == null)
         {
             return NotFound();
         }
-
         var contact = await _context.Contacts.FindAsync(id);
         if (contact == null)
         {
@@ -99,9 +108,18 @@ public class ContactsController : Controller
         {
             return NotFound();
         }
+        
 
         if (ModelState.IsValid)
         {
+            var contacts = from c in _context.Contacts
+                           select c;
+            contacts = contacts.Where(c => c.Email == contact.Email && c.Id != contact.Id);
+            if (await contacts.AnyAsync())
+            {
+                ModelState.AddModelError("Email", "Un contatto con questa email esiste già.");
+                return View(contact);
+            }
             try
             {
                 _context.Update(contact);
